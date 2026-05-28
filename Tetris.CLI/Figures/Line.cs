@@ -18,8 +18,6 @@
             Direction = IFigure.Orientation.Vertical;
             Position = new Position[]
             {
-                new Position { X = startPosition, Y = -3, Used = true },
-                new Position { X = startPosition, Y = -2, Used = true },
                 new Position { X = startPosition, Y = -1, Used = true },
                 new Position { X = startPosition, Y = 0, Used = true },
                 new Position { X = startPosition, Y = 1, Used = true }
@@ -30,11 +28,9 @@
             Direction = IFigure.Orientation.Horizontal;
             Position = new Position[]
             {
-                new Position { X = startPosition - 2, Y = 1, Used = true },
                 new Position { X = startPosition - 1, Y = 1, Used = true },
                 new Position { X = startPosition, Y = 1, Used = true },
                 new Position { X = startPosition + 1, Y = 1, Used = true },
-                new Position { X = startPosition + 2, Y = 1, Used = true }
             };
         }
     }
@@ -56,11 +52,9 @@
 
             return new Position[]
             {
-                new Position { X = x - 2, Y = centerY, Used = true },
                 new Position { X = x - 1, Y = centerY, Used = true },
                 new Position { X = x,     Y = centerY, Used = true },
                 new Position { X = x + 1, Y = centerY, Used = true },
-                new Position { X = x + 2, Y = centerY, Used = true }
             };
         }
         else
@@ -74,11 +68,9 @@
 
             return new Position[]
             {
-                new Position { X = centerX, Y = y - 2, Used = true },
                 new Position { X = centerX, Y = y - 1, Used = true },
                 new Position { X = centerX, Y = y,     Used = true },
                 new Position { X = centerX, Y = y + 1, Used = true },
-                new Position { X = centerX, Y = y + 2, Used = true }
             };
         }
     }

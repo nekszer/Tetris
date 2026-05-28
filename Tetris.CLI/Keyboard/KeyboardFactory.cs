@@ -30,6 +30,6 @@ namespace Tetris.CLI.Keyboard
 
     public interface IKeyboardActionExecutor
     {
-        Position[] Execute(IFigurePositionUpdater figurePositionUpdater, IFigure figure, List<Position> positions, int verticalSize, int horizontalSize);
+        Position[] Execute(IFigurePositionUpdater figurePositionUpdater, IFigure figure, Position[] positions, int verticalSize, int horizontalSize);
     }
 }
