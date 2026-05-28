@@ -1,4 +1,6 @@
-﻿public class GameSate
+﻿using Tetris.CLI.Keyboard;
+
+public partial class GameSate
 {
     public GameInfo Info { get; set; }
     public List<Position> Positions { get; set; } = [];
@@ -38,13 +40,6 @@
         return false;
     }
 
-    public class GameUpdateStateResult
-    {
-        public long Points { get; set; }
-        public bool IsValid { get; set; }
-        public string State { get; set; }
-    }
-
     public GameUpdateStateResult UpdateState()
     {
         if (CurrentFigure == null)
@@ -56,9 +51,8 @@
         if (!CurrentFigure.IsMoving)
         {
             CurrentFigure = Factory.CreateFigure(horizontalSize);
-            var y = GetMaxVerticalPosition(verticalSize);
-
-            if (CurrentFigure.Position.Any(p => p.Y == y))
+            var hasBlocked = new ColisionDetector(Positions.Where(p => p.Used).ToArray()).DetectColision(CurrentFigure.Position, verticalSize, horizontalSize);
+            if (hasBlocked)
                 return new GameUpdateStateResult { IsValid = false, Points = Info.Points, State = "Fin del juego" };
 
             return new GameUpdateStateResult { IsValid = true, Points = Info.Points, State = "Nueva figura en curso" };
@@ -67,21 +61,21 @@
         Position[] finalPositions = null;
         if (CanFigureFall)
         {
-            finalPositions = FigurePositionUpdater.Falling(CurrentFigure.Position, verticalSize);
+            finalPositions = FigurePositionUpdater.Falling(CurrentFigure.Position, Positions.Where(d => d.Used).ToArray(), verticalSize);
         }
         else
         {
-            if (LastKeyPressed.Key.ToString() == "RightArrow")
-                finalPositions = FigurePositionUpdater.MoveRight(CurrentFigure.Position, verticalSize, horizontalSize);
-
-            if (LastKeyPressed.Key.ToString() == "LeftArrow")
-                finalPositions = FigurePositionUpdater.MoveLeft(CurrentFigure.Position, verticalSize, 0);
+            var keyboardActionExecutor = new KeyboardFactory().Resolve(KeyboardInstance.GetAction());
+            if(keyboardActionExecutor != null)
+                finalPositions = keyboardActionExecutor.Execute(FigurePositionUpdater, CurrentFigure, Positions, Info.VerticalSize, Info.HorizontalSize);
         }
 
         if (finalPositions == null)
             return new GameUpdateStateResult { IsValid = true, Points = Info.Points, State = "Sin cambios" };
 
-        if (!DetectBlockPosition(finalPositions, verticalSize))
+
+        var hasBlockedByColition = new ColisionDetector(Positions.Where(p => p.Used).ToArray()).DetectColision(finalPositions, verticalSize, horizontalSize);
+        if (!hasBlockedByColition)
         {
             CurrentFigure.Position = finalPositions;
             return new GameUpdateStateResult { IsValid = true, Points = Info.Points, State = "Actualización de figura" };
@@ -100,43 +94,9 @@
         return new GameUpdateStateResult { IsValid = true, Points = Info.Points, State = "Colisión" };
     }
 
-    private bool DetectBlockPosition(Position[] finalPositions, int verticalSize)
+    private KeyboardListener KeyboardInstance { get; set; }
+    public void SetKeyboardListener(KeyboardListener instance)
     {
-        var y = GetMaxVerticalPosition(verticalSize);
-        foreach (var position in finalPositions.OrderBy(p => p.Y))
-        {
-            if (position.Y == y)
-                return true;
-        }
-
-        return false;
-    }
-
-    public int GetMaxVerticalPosition(int verticalSize)
-    {
-        try
-        {
-            var yMax = Positions.Where(p => p.Used).Min(p => p.Y);
-            return yMax - 1;
-        }
-        catch
-        {
-            return verticalSize - 1;
-        }
-    }
-
-    public int GetMaxHorizontalPosition(int horizontalSize)
-    {
-        try
-        {
-            return Positions.Where(p => p.Used).Max(p => p.X);
-        }
-        catch { return horizontalSize - 1; }
-    }
-
-    private ConsoleKeyInfo LastKeyPressed { get; set; }
-    public void LastKeyPress(ConsoleKeyInfo pressKey)
-    {
-        LastKeyPressed = pressKey;
+        KeyboardInstance = instance;
     }
 }

@@ -17,4 +17,10 @@
 
     public Position[] Position { get; set; }
     public bool IsMoving { get; set; }
+    public IFigure.Orientation Direction { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    
+    public Position[] Rotate()
+    {
+        return Position;
+    }
 }

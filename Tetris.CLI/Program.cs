@@ -1,21 +1,23 @@
-﻿public partial class Program
+﻿using Tetris.CLI.Keyboard;
+
+public partial class Program
 {
 
     public static void Main(string[] args)
     {
-        int verticalSize = 24;
-        int horizontalSize = 20;
+        int verticalSize = 36;
+        int horizontalSize = 30;
 
         var gameInfo = new GameInfo(verticalSize, horizontalSize);
         var gameState = new GameSate(gameInfo, new FigureFactory(), new FigurePositionUpdater());
+        var keyboardListener = KeyboardListener.Instance;
+        gameState.SetKeyboardListener(keyboardListener);
 
         byte iterations = 0;
         byte maxValue = byte.MaxValue;
         while (true)
         {
-            ConsoleKeyInfo pressKey = new ConsoleKeyInfo();
-            if (Console.KeyAvailable)
-                pressKey = Console.ReadKey(true);
+            keyboardListener.Listen();
 
             for (int i = 0; i <= verticalSize; i++)
             {
@@ -29,15 +31,13 @@
                         if (j == 0 || j == horizontalSize)
                             Console.Write("#");
                         else
-                            Console.Write(gameState.CheckPosition(j, i) ? "O" : " ");
+                            Console.Write(gameState.CheckPosition(j, i) ? "█" : " ");
                 }
             }
 
             gameState.CanFigureFall = iterations == 25;
             if (gameState.CanFigureFall)
                 iterations = 0;
-            else
-                gameState.LastKeyPress(pressKey);
 
             var newState = gameState.UpdateState();
             if (!newState.IsValid)
@@ -46,26 +46,21 @@
                 break;
             }
 
-            Thread.Sleep(1);
+            Thread.Sleep(16);
             LimpiarConsolaForzado();
 
             iterations++;
         }
     }
 
-    /// <summary>
-    /// Limpia la consola de forma segura y forzada.
-    /// </summary>
     static void LimpiarConsolaForzado()
     {
         try
         {
-            // Intentar limpieza estándar
             Console.Clear();
         }
         catch
         {
-            // Si falla, limpiar manualmente
             int ancho = Console.WindowWidth;
             int alto = Console.WindowHeight;
 
