@@ -5,8 +5,8 @@ public partial class Program
 
     public static void Main(string[] args)
     {
-        int verticalSize = 36;
-        int horizontalSize = 30;
+        int verticalSize = 18;
+        int horizontalSize = 12;
 
         var gameInfo = new GameInfo(verticalSize, horizontalSize);
         var gameState = new GameSate(gameInfo, new FigureFactory(), new FigurePositionUpdater());

@@ -89,9 +89,27 @@ public partial class GameSate
                 continue;
 
             positionFound.Used = true;
+
+            DeleteCompletions(Positions);
         }
 
         return new GameUpdateStateResult { IsValid = true, Points = Info.Points, State = "Colisión" };
+    }
+
+    private void DeleteCompletions(List<Position> positions)
+    {
+        var rows = positions.Where(d => d.X != 0).GroupBy(p => p.Y);
+        var rowsCompletions = rows.Where(s => s.ToList().All(r => r.Used));
+        var data = rowsCompletions.SelectMany(s => s.ToArray()).OrderByDescending(d => d.Y);
+
+        foreach (var item in data)
+        {
+            var index = Positions.IndexOf(item);
+            var position = Positions.ElementAt(index);
+            position.Used = false;
+        }
+
+        // TODO: Move columns
     }
 
     private KeyboardListener KeyboardInstance { get; set; }
